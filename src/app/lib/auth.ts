@@ -4,7 +4,10 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-const secretKey = process.env.SECRET_KEY;
+const secretKey =
+  process.env.SECRET_KEY ||
+  (process.env.NODE_ENV === "development" ? "test-secret-key" : undefined);
+
 const key = new TextEncoder().encode(secretKey);
 
 export async function decrypt(input: string): Promise<any> {
