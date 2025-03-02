@@ -7,6 +7,9 @@ export default async function Page() {
       Welcome
       <div>
         Go to{" "}
+        <Link className="btn-primary" href="/main">
+          Main
+        </Link>
         <Link className="btn-primary" href="/login">
           Login
         </Link>
