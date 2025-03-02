@@ -1,5 +1,5 @@
 @import "tailwindcss";
 
 .btn-primary {
-  @apply px-4 rounded bg-blue-500 text-white;
+  @apply px-4 rounded bg-blue-500 text-white w-[128px] cursor-pointer;
 }

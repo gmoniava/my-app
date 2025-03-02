@@ -27,9 +27,7 @@ export default async function middleware(req: NextRequest) {
     session?.user &&
     !req.nextUrl.pathname.startsWith("/main")
   ) {
-    return NextResponse.redirect(new URL("/main", req.nextUrl), {
-      status: 303,
-    });
+    return NextResponse.redirect(new URL("/main", req.nextUrl));
   }
 
   return NextResponse.next();

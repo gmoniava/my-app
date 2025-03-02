@@ -9,7 +9,7 @@ export default async function Page() {
         action={async (formData) => {
           "use server";
           await login(formData);
-          redirect("/");
+          redirect("/main");
         }}
         style={{ padding: 10 }}
       >
@@ -24,18 +24,7 @@ export default async function Page() {
           Login
         </button>
       </form>
-      <form
-        action={async () => {
-          "use server";
-          // await logout();
-          redirect("/");
-        }}
-        style={{ padding: 10 }}
-      >
-        <button type="submit" className={"btn-primary"}>
-          Logout
-        </button>
-      </form>
+
       <pre>{JSON.stringify(session, null, 2)}</pre>
     </section>
   );
