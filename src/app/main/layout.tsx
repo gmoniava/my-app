@@ -11,7 +11,7 @@ export default function Layout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  let [showSidebar, setShowSidebar] = React.useState(false);
+  const [showSidebar, setShowSidebar] = React.useState(false);
   return (
     <div lang="en" className="h-full flex ">
       {showSidebar && <Sidebar />}
