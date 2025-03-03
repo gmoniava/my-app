@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { login, getSession, logout } from "@/app/lib/auth";
+import { login, getSession } from "@/app/lib/auth";
 
 export default async function Page() {
   const session = await getSession();
@@ -13,12 +13,7 @@ export default async function Page() {
         }}
         style={{ padding: 10 }}
       >
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          className="border rounded "
-        />
+        <input type="email" name="email" placeholder="Email" className="border rounded " />
         <br />
         <button className={"btn-primary"} type="submit">
           Login
