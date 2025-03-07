@@ -10,19 +10,21 @@ export default function Layout({
   const [showSidebar, setShowSidebar] = React.useState(false);
   return (
     <div lang="en" className="h-full flex ">
-      {showSidebar && <Sidebar />}
+      <Sidebar isOpen={showSidebar} />
       <div className="flex-1">
-        <div className="border-b">
+        <div className="border-b border-b-gray-300 p-[5px]">
           <div
-            className="btn-primary"
+            className="cursor-pointer"
             onClick={() => {
               setShowSidebar(!showSidebar);
             }}
           >
-            Toggle sidebar
+            <div className="w-[35px] h-[4px] bg-black my-1"></div>
+            <div className="w-[35px] h-[4px] bg-black my-1"></div>
+            <div className="w-[35px] h-[4px] bg-black my-1"></div>
           </div>
         </div>
-        {children}
+        <div className="p-[5px]">{children}</div>
       </div>
     </div>
   );
