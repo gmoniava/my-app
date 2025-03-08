@@ -1,4 +1,5 @@
 import postgres from "postgres";
+import bcrypt from "bcryptjs";
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" });
 
@@ -25,6 +26,48 @@ async function seedGenres() {
       FOREIGN KEY (movie_id) REFERENCES movies(id) ON DELETE CASCADE,
       FOREIGN KEY (genre_id) REFERENCES genres(id) ON DELETE CASCADE
     );`;
+}
+
+const users = [
+  {
+    id: "410544b2-4001-4271-9855-fec4b6a6442a",
+    name: "User",
+    email: "user@gmail.com",
+    password: "123456",
+  },
+  {
+    id: "222522b2-4001-1199-9855-fec4b6a6442a",
+    name: "David",
+    email: "user@gmail.com",
+    password: "123456",
+  },
+];
+
+async function seedUsers() {
+  await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
+  await sql`
+    CREATE TABLE IF NOT EXISTS users (
+      id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      email TEXT NOT NULL UNIQUE,
+      password TEXT NOT NULL
+    );
+  `;
+
+  const insertedUsers = await Promise.all(
+    users.map(async (user: any) => {
+      const salt = bcrypt.genSaltSync(10);
+      const hash = bcrypt.hashSync(user.password, salt);
+
+      return sql`
+        INSERT INTO users (id, name, email, password)
+        VALUES (${user.id}, ${user.name}, ${user.email}, ${hash})
+        ON CONFLICT (id) DO NOTHING;
+      `;
+    })
+  );
+
+  return insertedUsers;
 }
 
 async function seedMovies() {
@@ -61,8 +104,9 @@ async function seedMovies() {
 
 export async function GET() {
   try {
-    await seedGenres();
-    await seedMovies();
+    // await seedGenres();
+    // await seedMovies();
+    // await seedUsers();
     return Response.json({ message: "Database seeded successfully" });
   } catch (error) {
     return Response.json({ error }, { status: 500 });

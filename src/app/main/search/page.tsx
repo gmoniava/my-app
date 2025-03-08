@@ -1,6 +1,6 @@
 "use client";
 
-import { addMovie } from "@/app/lib/actions";
+import { addMovie } from "@/app/lib/movies";
 
 export default function Page() {
   return (

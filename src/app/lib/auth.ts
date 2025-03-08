@@ -2,7 +2,12 @@
 
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import postgres from "postgres";
+import bcrypt from "bcryptjs";
 
+import { z } from "zod";
+
+const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" });
 const secretKey = process.env.SECRET_KEY || (process.env.NODE_ENV === "development" ? "test-secret-key" : undefined);
 
 const key = new TextEncoder().encode(secretKey);
@@ -22,10 +27,34 @@ export async function encrypt(payload: any) {
     .sign(key);
 }
 
-export async function login(formData: FormData) {
-  // Verify credentials && get the user
+async function getUser(email: string): Promise<any> {
+  try {
+    const user = await sql`SELECT * FROM users WHERE email=${email}`;
+    return user[0];
+  } catch (error) {
+    console.error("Failed to fetch user:", error);
+    throw new Error("Failed to fetch user.");
+  }
+}
 
-  const user = { email: formData.get("email"), name: "John" };
+const UserSchema = z.object({
+  email: z.string(),
+  password: z.string(),
+});
+
+export async function login(formData: FormData) {
+  // Parse the user
+  const user = UserSchema.parse({ email: formData.get("email") || "", password: formData.get("password") || "" });
+
+  // Find user in the database
+  const userFromDb = await getUser(user.email);
+  if (!userFromDb) {
+    throw new Error("User not found");
+  }
+
+  // Do the passwords match?
+  const passWordsMatch = bcrypt.compareSync(user.password, userFromDb.password);
+  if (!passWordsMatch) throw new Error("Wrong credentials");
 
   // Create the session
   const expires = new Date(Date.now() + 60 * 60 * 1000);
