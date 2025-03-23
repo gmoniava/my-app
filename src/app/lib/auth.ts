@@ -12,14 +12,14 @@ const secretKey = process.env.SECRET_KEY || (process.env.NODE_ENV === "developme
 
 const key = new TextEncoder().encode(secretKey);
 
-export async function decrypt(input: string): Promise<any> {
+export async function verify(input: string): Promise<any> {
   const { payload } = await jwtVerify(input, key, {
     algorithms: ["HS256"],
   });
   return payload;
 }
 
-export async function encrypt(payload: any) {
+export async function sign(payload: any) {
   return await new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
@@ -58,7 +58,7 @@ export async function login(formData: FormData) {
 
   // Create the session
   const expires = new Date(Date.now() + 60 * 60 * 1000);
-  const session = await encrypt({ user, expires });
+  const session = await sign({ user, expires });
 
   // Save the session in a cookie
   (await cookies()).set("session", session, { expires, httpOnly: true });
@@ -72,5 +72,5 @@ export async function logout() {
 export async function getSession() {
   const session = (await cookies()).get("session")?.value;
   if (!session) return null;
-  return await decrypt(session);
+  return await verify(session);
 }

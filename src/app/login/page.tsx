@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { login, getSession } from "@/app/lib/auth";
 
 export default async function Page() {
-  const session = await getSession();
   return (
     <div className="h-full">
       <div className="flex justify-center items-center h-full">
