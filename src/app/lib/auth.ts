@@ -43,7 +43,7 @@ const UserSchema = z.object({
 });
 
 export async function login(formData: FormData) {
-  // Parse the user
+  // Parse the user from the request
   const user = UserSchema.parse({ email: formData.get("email") || "", password: formData.get("password") || "" });
 
   // Find user in the database
@@ -56,7 +56,7 @@ export async function login(formData: FormData) {
   const passWordsMatch = bcrypt.compareSync(user.password, userFromDb.password);
   if (!passWordsMatch) throw new Error("Wrong credentials");
 
-  // Create the session
+  // We authenticated the user, now let's create a session.
   const expires = new Date(Date.now() + 60 * 60 * 1000);
   const session = await sign({ user, expires });
 
