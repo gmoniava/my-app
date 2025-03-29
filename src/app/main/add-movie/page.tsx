@@ -108,9 +108,10 @@ export default function Page() {
             disabled={isPending}
           >
             <option value="1">Action</option>
-            <option value="2">Sci-Fi</option>
+            <option value="2">Comedy</option>
             <option value="3">Drama</option>
             <option value="4">Thriller</option>
+            <option value="5">Sci-Fi</option>
           </select>
         </div>
         <button type="submit" className="bg-blue-500 text-white p-2 rounded" disabled={isPending}>
