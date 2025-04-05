@@ -35,12 +35,6 @@ const users = [
     email: "user@gmail.com",
     password: "123456",
   },
-  {
-    id: "222522b2-4001-1199-9855-fec4b6a6442a",
-    name: "David",
-    email: "user@gmail.com",
-    password: "123456",
-  },
 ];
 
 async function seedUsers() {
