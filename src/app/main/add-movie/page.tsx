@@ -49,7 +49,9 @@ export default function Page() {
 
   return (
     <div className="h-full">
-      <form onSubmit={handleSubmit} className="w-1/2 space-y-4 p-4 border rounded-lg">
+      <form onSubmit={handleSubmit} className="w-1/2 mx-auto space-y-4 p-4 border rounded-lg">
+        <div className="text-xl font-semibold">Add new movie</div>
+
         <div>
           <label className="block">Name:</label>
           <input
