@@ -1,11 +1,14 @@
 "use client";
 
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
+import { useOptimistic, useTransition } from "react";
 
-export default function Search() {
+export default function Search({ name }: any) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace, push } = useRouter();
+  const [optimisticName, setOptimisticName] = useOptimistic(searchParams.get("name"));
+  const [pending, startTransition] = useTransition();
 
   function handleSearch(term: string) {
     const params = new URLSearchParams(searchParams);
@@ -14,11 +17,14 @@ export default function Search() {
     } else {
       params.delete("name");
     }
-    replace(`${pathname}?${params.toString()}`);
-  }
 
+    startTransition(() => {
+      setOptimisticName(term);
+      replace(`${pathname}?${params.toString()}`);
+    });
+  }
   return (
-    <div>
+    <div data-pending={pending ? "" : undefined}>
       <div className="w-1/2 mx-auto space-y-4 p-4 border rounded-lg">
         <div className="text-xl font-semibold">Search movies</div>
 
@@ -28,7 +34,7 @@ export default function Search() {
           onChange={(e) => {
             handleSearch(e.target.value);
           }}
-          defaultValue={searchParams.get("name")?.toString()}
+          value={optimisticName || ""}
         />
       </div>
     </div>

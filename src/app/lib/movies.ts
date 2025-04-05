@@ -24,8 +24,13 @@ const SearchSchema = z.object({
   name: z.string().trim().max(100, "Search query too long"),
 });
 
+function delay(ms: any) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export async function searchMovies(searchParams: URLSearchParams): Promise<Movie[] | { error: string }> {
   try {
+    await delay(1000);
     // Validate the query from URL
     const { name } = SearchSchema.parse({
       name: searchParams.get("name") || "",
