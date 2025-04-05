@@ -2,6 +2,12 @@ import { redirect } from "next/navigation";
 import { login, getSession } from "@/app/lib/auth";
 
 export default async function Page() {
+  const loginToApp = async (formData: any) => {
+    "use server";
+    await login(formData);
+    redirect("/main");
+  };
+
   return (
     <div className="h-full">
       <div className="flex justify-center items-center h-full">
@@ -9,14 +15,7 @@ export default async function Page() {
           <div className="text-2xl flex-1 text-center">Please login</div>
           <div className="flex-1">
             {" "}
-            <form
-              action={async (formData) => {
-                "use server";
-                await login(formData);
-                redirect("/main");
-              }}
-              style={{ padding: 10 }}
-            >
+            <form action={loginToApp} style={{ padding: 10 }}>
               <div className="flex flex-col items-center gap-1">
                 <input type="email" name="email" placeholder="Email" className="border rounded border-slate-300" />
                 <input
