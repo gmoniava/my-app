@@ -11,7 +11,6 @@ export default async function Page(props: {
 }) {
   const searchParams = await props.searchParams;
   const urlSearchParams = new URLSearchParams(searchParams as Record<string, string>);
-
   return (
     <div className=" h-full flex flex-col group">
       <SearchForm />

@@ -7,7 +7,7 @@ type MovieListProps = {
 
 const MovieList = async ({ params }: MovieListProps) => {
   const searchResults = await searchMovies(params);
-  if (!Array.isArray(searchResults)) return null;
+  if (!Array.isArray(searchResults)) return <div>Error</div>;
 
   return (
     <div className=" flex-1 overflow-auto p-4 bg-gray-50 rounded-lg shadow-md">
