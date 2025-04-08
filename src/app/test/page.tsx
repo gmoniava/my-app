@@ -1,11 +1,14 @@
 import { Suspense } from "react";
 import GenresPanel from "./GenresPanel";
 
-export default async function Page({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined };
+export default async function Page(props: {
+  searchParams?: Promise<{
+    query?: string;
+    page?: string;
+  }>;
 }) {
+  const searchParams: Record<string, string> = (await props.searchParams) ?? {};
+
   const genres = Array.isArray(searchParams.genre)
     ? searchParams.genre
     : searchParams.genre !== null && searchParams.genre !== undefined
