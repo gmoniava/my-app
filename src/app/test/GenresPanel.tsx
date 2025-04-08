@@ -1,23 +1,16 @@
 "use client";
-import React from "react";
+
 import { useRouter } from "next/navigation";
 
 export default function GenresPanel({ genres }: { genres: string[] }) {
   const router = useRouter();
-  console.log(genres);
-
-  React.useEffect(() => {
-    console.log("MOUNTED");
-  }, []);
 
   return (
     <div>
       {["1", "2", "3", "4", "5"].map((genre) => (
         <label key={genre}>
           <input
-            name={genre}
-            type="checkbox"
-            defaultChecked={genres.indexOf(genre) !== -1 ? true : false}
+            checked={genres.includes(genre)}
             onChange={(e) => {
               const { name, checked } = e.target;
               const newGenres = checked ? [...genres, name] : genres.filter((g) => g !== name);
@@ -26,6 +19,8 @@ export default function GenresPanel({ genres }: { genres: string[] }) {
 
               router.push(`?${newParams}`);
             }}
+            name={genre}
+            type="checkbox"
           />
           Genre {genre}
         </label>
