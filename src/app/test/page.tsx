@@ -8,7 +8,7 @@ export default async function Page({
 }) {
   const genres = Array.isArray(searchParams.genre)
     ? searchParams.genre
-    : searchParams.genre
+    : searchParams.genre !== null && searchParams.genre !== undefined
     ? [searchParams.genre]
     : [];
 
