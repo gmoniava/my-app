@@ -18,9 +18,8 @@ export default async function Page(props: {
   return (
     <div className=" h-full flex flex-col group">
       <SearchForm />
-      {/* We are handling loading state this way by combining has and group utilities from tailwind */}
-      <div className="my-[5px] hidden group-has-[[data-pending]]:animate-pulse group-has-[[data-pending]]:block rounded mx-auto w-[200px] bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700">
-        Loading movies
+      <div className="hidden justify-center items-center h-16  group-has-[[data-pending]]:flex">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
       </div>
       <Suspense fallback={<div data-pending="" />}>
         <MovieList searchResults={searchResults} />
