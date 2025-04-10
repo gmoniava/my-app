@@ -21,7 +21,14 @@ const AddFormSchema = z.object({
   description: z.string(),
   genres: z.array(z.coerce.number()),
 });
-
+const EditFormSchema = z.object({
+  name: z.string(),
+  release_year: z.coerce.number(),
+  actors: z.string(),
+  description: z.string(),
+  genres: z.array(z.coerce.number()),
+  movieId: z.string(),
+});
 const SearchSchema = z.object({
   name: z.string().trim().max(100, "Search query too long"),
   page: z.coerce
@@ -80,7 +87,30 @@ export async function searchMovies(
     return { data, total: count };
   } catch (error) {
     console.error(error);
-    return { error: "Failed to search movies" };
+    throw new Error("Failed to search movies");
+  }
+}
+
+export async function getMovieById(id: string): Promise<Movie | { error: string }> {
+  try {
+    // Get movie details with aggregated genres
+    const movies: Movie[] = await sql`
+      SELECT m.id, m.name, m.release_year, m.actors, m.description,
+            ARRAY_AGG(mg.genre_id) AS genres
+      FROM movies m
+      LEFT JOIN movie_genres mg ON m.id = mg.movie_id
+      WHERE m.id = ${id}
+      GROUP BY m.id
+    `;
+
+    if (!movies[0]) {
+      return { error: "Movie not found" };
+    }
+
+    return movies[0];
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to get movie");
   }
 }
 
@@ -119,6 +149,51 @@ export async function addMovie(formData: FormData) {
 
     return { message: "Movie added successfully" };
   } catch (error) {
-    return { error: "Failed to add movie: " };
+    throw new Error("Failed to add movie");
+  }
+}
+
+export async function editMovie(formData: FormData) {
+  try {
+    const { name, release_year, actors, description, genres, movieId } = EditFormSchema.parse({
+      name: formData.get("name"),
+      release_year: formData.get("release_year"),
+      actors: formData.get("actors"),
+      description: formData.get("description"),
+      genres: formData.getAll("genres"),
+      movieId: formData.get("id"),
+    });
+
+    // Start a safe transaction
+    await sql.begin(async (tx) => {
+      // Update movie in the movies table
+      await tx`
+        UPDATE movies
+        SET name = ${name}, release_year = ${release_year}, actors = ${actors}, description = ${description}
+        WHERE id = ${movieId};
+      `;
+
+      // Remove existing movie-genre relationships
+      await tx`
+        DELETE FROM movie_genres
+        WHERE movie_id = ${movieId};
+      `;
+
+      // Insert the new movie-genre relationships
+      await Promise.all(
+        genres.map(
+          (genreId) =>
+            tx`
+            INSERT INTO movie_genres (movie_id, genre_id) 
+            VALUES (${movieId}, ${genreId});
+          `
+        )
+      );
+    });
+
+    return { message: "Movie updated successfully" };
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to update movie");
   }
 }

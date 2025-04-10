@@ -1,6 +1,5 @@
 import React from "react";
-import type { Movie } from "@/app/lib/movies";
-import { searchMovies } from "@/app/lib/movies";
+import Link from "next/link";
 
 const MovieList = async ({ searchResults }: any) => {
   return (
@@ -25,6 +24,12 @@ const MovieList = async ({ searchResults }: any) => {
                 <strong>Genres:</strong> {movie.genres.join(", ")}
               </p>
               <p className="text-gray-800 mt-2">{movie.description}</p>
+              <div>
+                {" "}
+                <Link className="mt-[5px] btn-primary inline-block" href={`/main/edit-movie/${movie.id}`}>
+                  Edit movie
+                </Link>
+              </div>
             </li>
           ))}
         </ul>
