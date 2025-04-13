@@ -11,7 +11,7 @@ export default async function Page() {
   return (
     <div className="h-full">
       <div className="flex justify-center items-center h-full">
-        <div className=" w-1/3 border border-slate-300 p-[10px] h-[620px] rounded-md flex flex-col">
+        <div className=" w-1/3 border border-slate-300 p-[10px] h-1/3 rounded-md flex flex-col">
           <div className="text-2xl flex-1 text-center">Please login</div>
           <div className="flex-1">
             {" "}

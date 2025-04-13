@@ -3,3 +3,7 @@
 .btn-primary {
   @apply px-4 rounded bg-blue-500 text-white w-[128px] cursor-pointer;
 }
+
+.btn-secondary {
+  @apply px-4  rounded border border-solid  w-[128px] cursor-pointer;
+}

@@ -33,9 +33,7 @@ export default function Pagination(props: any) {
       <button
         onClick={() => handlePageChange(optimisticPage - 1)}
         disabled={isPrevDisabled}
-        className={`px-4 py-2 bg-blue-500 text-white rounded-lg ${
-          isPrevDisabled ? "opacity-50 cursor-not-allowed" : ""
-        }`}
+        className={`btn-secondary ${isPrevDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
       >
         Previous
       </button>
@@ -47,9 +45,7 @@ export default function Pagination(props: any) {
       <button
         onClick={() => handlePageChange(optimisticPage + 1)}
         disabled={isNextDisabled}
-        className={`px-4 py-2 bg-blue-500 text-white rounded-lg ${
-          isNextDisabled ? "opacity-50 cursor-not-allowed" : ""
-        }`}
+        className={`btn-secondary ${isNextDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
       >
         Next
       </button>

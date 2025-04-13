@@ -12,23 +12,29 @@ const MovieList = async ({ searchResults }: any) => {
           {searchResults.data?.map((movie: any) => (
             <li
               key={movie.id}
-              className="bg-white p-4 rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-200"
+              className="bg-white p-4 rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-200 flex items-center"
             >
-              <h3 className="text-xl font-bold text-gray-800">
-                {movie.name} ({movie.release_year})
-              </h3>
-              <p className="text-gray-600">
-                <strong>Actors:</strong> {movie.actors}
-              </p>
-              <p className="text-gray-600">
-                <strong>Genres:</strong> {movie.genres.join(", ")}
-              </p>
-              <p className="text-gray-800 mt-2">{movie.description}</p>
+              <div className="flex-1">
+                {" "}
+                <h3 className="text-xl font-bold text-gray-800">
+                  {movie.name} ({movie.release_year})
+                </h3>
+                <p className="text-gray-600">
+                  <strong>Actors:</strong> {movie.actors}
+                </p>
+                <p className="text-gray-600">
+                  <strong>Genres:</strong> {movie.genres.join(", ")}
+                </p>
+                <p className="text-gray-800 mt-2">{movie.description}</p>
+              </div>
               <div>
                 {" "}
-                <Link className="mt-[5px] btn-primary inline-block" href={`/main/edit-movie/${movie.id}`}>
-                  Edit movie
-                </Link>
+                <div>
+                  {" "}
+                  <Link className="mt-[5px] btn-secondary inline-block" href={`/main/edit-movie/${movie.id}`}>
+                    Edit movie 2
+                  </Link>
+                </div>
               </div>
             </li>
           ))}
