@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verify } from "@/app/lib/auth";
+import { verify, getSession } from "@/app/lib/auth";
 import { cookies } from "next/headers";
 
 const protectedRoutes = ["/main"];
@@ -10,9 +10,7 @@ export default async function middleware(req: NextRequest) {
   const isProtectedRoute = protectedRoutes.some((pPath: any) => path.startsWith(pPath));
 
   // Get sesion
-  const cookie = (await cookies()).get("session")?.value;
-  let session: any;
-  if (cookie) session = await verify(cookie);
+  const session = await getSession();
 
   // If user is on protected route and has no session redirect to login page.
   if (isProtectedRoute && !session?.user) {

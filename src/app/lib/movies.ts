@@ -2,6 +2,7 @@
 import postgres from "postgres";
 import { NextResponse } from "next/server"; // To send a response
 import { z } from "zod";
+import { getSession } from "./auth";
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" });
 
 const PAGE_SIZE = 5;
@@ -48,6 +49,11 @@ function delay(ms: any) {
 export async function searchMovies(
   searchParams: URLSearchParams
 ): Promise<{ data: Movie[]; total: number } | { error: string }> {
+  const session = await getSession();
+  if (!session?.user) {
+    return { error: "Unauthorized" };
+  }
+
   await delay(1000);
 
   const { name, page, perPage } = SearchSchema.parse({
@@ -87,6 +93,11 @@ export async function searchMovies(
 }
 
 export async function getMovieById(id: string): Promise<Movie | { error: string }> {
+  const session = await getSession();
+  if (!session?.user) {
+    return { error: "Unauthorized" };
+  }
+
   // Get movie details with aggregated genres
   const movies: Movie[] = await sql`
       SELECT m.id, m.name, m.release_year, m.actors, m.description,
@@ -105,6 +116,11 @@ export async function getMovieById(id: string): Promise<Movie | { error: string 
 }
 
 export async function addMovie(formData: FormData) {
+  const session = await getSession();
+  if (!session?.user) {
+    return { error: "Unauthorized" };
+  }
+
   const { name, release_year, actors, description, genres } = AddFormSchema.parse({
     name: formData.get("name"),
     release_year: formData.get("release_year"),
@@ -140,6 +156,11 @@ export async function addMovie(formData: FormData) {
 }
 
 export async function editMovie(formData: FormData) {
+  const session = await getSession();
+  if (!session?.user) {
+    return { error: "Unauthorized" };
+  }
+
   const { name, release_year, actors, description, genres, movieId } = EditFormSchema.parse({
     name: formData.get("name"),
     release_year: formData.get("release_year"),
