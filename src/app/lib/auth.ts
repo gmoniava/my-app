@@ -4,6 +4,7 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import postgres from "postgres";
 import bcrypt from "bcryptjs";
+import { redirect } from "next/navigation";
 
 import { z } from "zod";
 
@@ -42,19 +43,19 @@ const UserSchema = z.object({
   password: z.string(),
 });
 
-export async function login(formData: FormData) {
+export async function login(previousState: any, formData: FormData) {
   // Parse the user from the request
   const user = UserSchema.parse({ email: formData.get("email") || "", password: formData.get("password") || "" });
 
   // Find user in the database
   const userFromDb = await getUser(user.email);
   if (!userFromDb) {
-    throw new Error("User not found");
+    return { error: "User not found" };
   }
 
   // Do the passwords match?
   const passWordsMatch = bcrypt.compareSync(user.password, userFromDb.password);
-  if (!passWordsMatch) throw new Error("Wrong credentials");
+  if (!passWordsMatch) return { error: "Wrong credentials" };
 
   // We authenticated the user, now let's create a session.
   const expires = new Date(Date.now() + 60 * 60 * 1000);
@@ -62,6 +63,8 @@ export async function login(formData: FormData) {
 
   // Save the session in a cookie
   (await cookies()).set("session", session, { expires, httpOnly: true });
+
+  redirect("/main");
 }
 
 export async function logout() {
