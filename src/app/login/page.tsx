@@ -1,10 +1,9 @@
 "use client";
 
-import { useSearchParams, usePathname, useRouter } from "next/navigation";
-import { useOptimistic, useActionState } from "react";
-import { login, getSession } from "@/app/lib/auth";
+import { useActionState } from "react";
+import { login } from "@/app/lib/auth";
 
-export default function Search({ name }: any) {
+export default function Search() {
   const [state, formAction, isPending] = useActionState(login, null);
 
   return (
