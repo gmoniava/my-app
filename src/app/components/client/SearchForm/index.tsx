@@ -1,66 +1,155 @@
 "use client";
 
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
-import { useOptimistic, useTransition } from "react";
+import React from "react";
 
 export default function Search({ name }: any) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const { replace, push } = useRouter();
-  const [optimisticName, setOptimisticName] = useOptimistic(searchParams.get("name"));
-  const [pending, startTransition] = useTransition();
+  const { replace } = useRouter();
 
-  function handleSearch(term: string) {
+  // Read initial values from URL
+  const getInitialFormState = () => {
+    const getParam = (key: string) => searchParams.get(key) || "";
+
+    const genres = searchParams.getAll("genres");
+
+    return {
+      name: getParam("name"),
+      release_year_from: getParam("release_year_from"),
+      release_year_to: getParam("release_year_to"),
+      actor: getParam("actor"),
+      description: getParam("description"),
+      genres,
+    };
+  };
+
+  const handleSearch = (_prevState: any, formData: FormData): any => {
     const params = new URLSearchParams(searchParams);
-    if (term) {
-      params.set("name", term);
-    } else {
-      params.delete("name");
-    }
 
-    startTransition(() => {
-      setOptimisticName(term);
-      replace(`${pathname}?${params.toString()}`);
+    const getValue = (key: string) => (formData.get(key) as string) || "";
+
+    const name = getValue("name");
+    const release_year_from = getValue("release_year_from");
+    const release_year_to = getValue("release_year_to");
+    const actor = getValue("actor");
+    const description = getValue("description");
+    const genres = formData.getAll("genres").map((g) => g.toString());
+
+    const setOrDelete = (key: string, value: string) => {
+      if (value) {
+        params.set(key, value);
+      } else {
+        params.delete(key);
+      }
+    };
+
+    setOrDelete("name", name);
+    setOrDelete("release_year_from", release_year_from);
+    setOrDelete("release_year_to", release_year_to);
+    setOrDelete("actor", actor);
+    setOrDelete("description", description);
+
+    params.delete("genres");
+    genres.forEach((genre) => {
+      if (genre) params.append("genres", genre);
     });
-  }
-  return (
-    <div data-pending={pending ? "" : undefined}>
-      <div className="w-1/2 mx-auto space-y-4 p-4 border rounded-lg">
-        <div className="text-xl font-semibold">Search movies</div>
 
-        <div className="relative group/search overflow-hidden">
-          <label htmlFor="default-search" className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">
-            Search
-          </label>
-          <input
-            type="search"
-            id="default-search"
-            onChange={(e) => {
-              handleSearch(e.target.value);
-            }}
-            value={optimisticName || ""}
-            className={`border w-full pl-8 pr-2 py-1.5 rounded-lg focus:outline-none focus:border focus:border-gray-400`}
-          />
-          <div
-            className={`absolute inset-y-0 -left-8 group-focus-within/search:-left-0 transition-all duration-200 ease-in-out flex items-center pl-2 pointer-events-none`}
-          >
-            <svg
-              aria-hidden="true"
-              className="w-5 h-5 black"
-              fill="none"
-              stroke="black"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              ></path>
-            </svg>
+    replace(`${pathname}?${params.toString()}`);
+
+    return {
+      name,
+      release_year_from,
+      release_year_to,
+      actor,
+      description,
+      genres,
+    };
+  };
+
+  const [formState, formAction, isPending] = React.useActionState(handleSearch, getInitialFormState());
+
+  return (
+    <div data-pending={isPending ? "" : undefined}>
+      <div className="h-full">
+        <form action={formAction} className="w-1/2 mx-auto space-y-4 p-4 border rounded-lg">
+          <div className="text-xl font-semibold">Search movies</div>
+
+          <div>
+            <label className="block">Name:</label>
+            <input
+              type="text"
+              name="name"
+              className="border p-2 w-full"
+              placeholder="e.g. Inception"
+              defaultValue={formState.name}
+            />
           </div>
-        </div>
+
+          <div>
+            <label className="block">Release Year Range:</label>
+            <div className="flex gap-2">
+              <input
+                type="number"
+                name="release_year_from"
+                className="border p-2 w-full"
+                placeholder="From"
+                defaultValue={formState.release_year_from}
+              />
+              <input
+                type="number"
+                name="release_year_to"
+                className="border p-2 w-full"
+                placeholder="To"
+                defaultValue={formState.release_year_to}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block">Actors:</label>
+            <input
+              type="text"
+              name="actor"
+              className="border p-2 w-full"
+              placeholder="e.g. Leonardo DiCaprio"
+              defaultValue={formState.actor}
+            />
+          </div>
+
+          <div>
+            <label className="block">Description:</label>
+            <input
+              type="text"
+              name="description"
+              className="border p-2 w-full"
+              placeholder="e.g. This is a drama movie.."
+              defaultValue={formState.description}
+            />
+          </div>
+
+          <div>
+            <label className="block">Genres:</label>
+            <select
+              // Had to add this because the select was not picking up the defaultValue unlike inputs.
+              key={[...new Set(formState.genres)].sort().join(",")}
+              name="genres"
+              multiple
+              className="border p-2 w-full"
+              defaultValue={formState.genres}
+            >
+              <option value="1">Action</option>
+              <option value="2">Comedy</option>
+              <option value="3">Drama</option>
+              <option value="4">Thriller</option>
+              <option value="5">Sci-Fi</option>
+            </select>
+          </div>
+
+          <button type="submit" className="bg-blue-500 text-white p-2 rounded" disabled={isPending}>
+            {isPending ? "Searching..." : "Search"}
+          </button>
+        </form>
       </div>
     </div>
   );
