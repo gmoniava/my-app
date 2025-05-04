@@ -32,7 +32,7 @@ const MovieList = async ({ searchResults }: any) => {
                 <div>
                   {" "}
                   <Link className="mt-[5px] btn-secondary inline-block" href={`/main/edit-movie/${movie.id}`}>
-                    Edit movie 2
+                    Edit movie
                   </Link>
                 </div>
               </div>
