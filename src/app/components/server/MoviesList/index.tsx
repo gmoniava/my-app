@@ -3,7 +3,7 @@ import Link from "next/link";
 
 const MovieList = async ({ searchResults }: any) => {
   return (
-    <div className="mt-[5px] flex-1 overflow-auto p-4 bg-gray-50 rounded-lg shadow-md">
+    <div className="mt-[5px] p-4 bg-gray-50 rounded-lg shadow-md">
       <h2 className="text-2xl font-semibold mb-4 text-gray-700">Movies</h2>
       {searchResults.data.length === 0 ? (
         <p className="text-center text-gray-500">No movies found.</p>

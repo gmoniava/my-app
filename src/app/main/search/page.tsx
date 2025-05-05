@@ -16,7 +16,7 @@ export default async function Page(props: {
   if ("error" in searchResults) return <div>Error</div>;
 
   return (
-    <div className=" h-full flex flex-col group">
+    <div className=" h-full overflow-auto group">
       <SearchForm />
       <div className="hidden justify-center items-center h-16  group-has-[[data-pending]]:flex">
         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>

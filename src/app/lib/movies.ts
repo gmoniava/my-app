@@ -30,6 +30,7 @@ const EditFormSchema = z.object({
   genres: z.array(z.coerce.number()),
   movieId: z.string(),
 });
+
 const SearchSchema = z.object({
   name: z.string().trim().max(100, "Search query too long"),
   page: z.coerce
@@ -40,6 +41,21 @@ const SearchSchema = z.object({
     .number()
     .nullable()
     .transform((val) => val ?? PAGE_SIZE),
+  genres: z
+    .string()
+    .optional()
+    .transform((val) =>
+      val
+        ? val
+            .split(",")
+            .map((id) => parseInt(id.trim()))
+            .filter((id) => !isNaN(id))
+        : []
+    ),
+  release_year_from: z.coerce.number().nullable(),
+  release_year_to: z.coerce.number().nullable(),
+  actor: z.string().nullable(),
+  description: z.string().nullable(),
 });
 
 function delay(ms: any) {
@@ -56,38 +72,71 @@ export async function searchMovies(
 
   await delay(1000);
 
-  const { name, page, perPage } = SearchSchema.parse({
+  const { name, page, perPage, genres, release_year_from, release_year_to, actor, description } = SearchSchema.parse({
     name: searchParams.get("name") || "",
     page: searchParams.get("page"),
     perPage: searchParams.get("perPage"),
+    genres: searchParams.get("genres") || "",
+    release_year_from: searchParams.get("release_year_from"),
+    release_year_to: searchParams.get("release_year_to"),
+    actor: searchParams.get("actor"),
+    description: searchParams.get("description"),
   });
 
-  // Build WHERE clause conditionally
-  const whereClause = name ? sql`WHERE m.name ILIKE ${"%" + name + "%"}` : sql``;
+  const nameQuery = name ? sql`AND m.name ILIKE ${"%" + name + "%"}` : sql``;
+  const releaseYearFromQuery = release_year_from ? sql`AND m.release_year >= ${release_year_from}` : sql``;
+  const releaseYearToQuery = release_year_to ? sql`AND m.release_year <= ${release_year_to}` : sql``;
+  const actorQuery = actor ? sql`AND m.actors ILIKE ${"%" + actor + "%"}` : sql``;
+  const descriptionQuery = description ? sql`AND m.description ILIKE ${"%" + description + "%"}` : sql``;
+
+  // We need a movie who has at least one matching genre
+  const genreQuery =
+    genres.length > 0
+      ? sql`
+        AND EXISTS (
+          SELECT 1
+            FROM movie_genres mg2
+           WHERE mg2.movie_id = m.id
+             AND mg2.genre_id IN (${sql(genres)})
+        )
+      `
+      : sql``;
 
   // 1. Get total count
   const [{ count }] = await sql`
-      SELECT COUNT(DISTINCT m.id)::int
-      FROM movies m
-      LEFT JOIN movie_genres mg ON m.id = mg.movie_id
-      LEFT JOIN genres g ON mg.genre_id = g.id
-      ${whereClause}
-    `;
+    SELECT COUNT(DISTINCT m.id)::int
+    FROM movies m
+    LEFT JOIN movie_genres mg ON m.id = mg.movie_id
+    LEFT JOIN genres g ON mg.genre_id = g.id
+    WHERE true
+    ${nameQuery}  
+    ${releaseYearFromQuery}
+    ${releaseYearToQuery}
+    ${actorQuery}
+    ${descriptionQuery}
+    ${genreQuery}
+  `;
 
   // 2. Get paginated data
   const offset = (page - 1) * perPage;
   const data: Movie[] = await sql`
-      SELECT m.id, m.name, m.release_year, m.actors, m.description,
-             ARRAY_AGG(g.name) AS genres
-      FROM movies m
-      LEFT JOIN movie_genres mg ON m.id = mg.movie_id
-      LEFT JOIN genres g ON mg.genre_id = g.id
-      ${whereClause}
-      GROUP BY m.id
-      ORDER BY m.name ASC
-      LIMIT ${perPage}
-      OFFSET ${offset}
-    `;
+    SELECT m.id, m.name, m.release_year, m.actors, m.description,
+           ARRAY_AGG(DISTINCT g.name) AS genres
+    FROM movies m
+    LEFT JOIN movie_genres mg ON m.id = mg.movie_id
+    LEFT JOIN genres g ON mg.genre_id = g.id
+    WHERE true
+    ${nameQuery}
+    ${releaseYearFromQuery}
+    ${releaseYearToQuery}
+    ${actorQuery}
+    ${descriptionQuery}
+    ${genreQuery}
+    GROUP BY m.id
+    ORDER BY m.name ASC
+    LIMIT ${perPage}
+    OFFSET ${offset}
+  `;
 
   return { data, total: count };
 }
