@@ -27,6 +27,7 @@ export default function Pagination(props: any) {
 
   const isNextDisabled = optimisticPage >= props.searchResults.total / PAGE_SIZE;
   const isPrevDisabled = optimisticPage === 1;
+  const totalPages = Math.ceil(props.searchResults.total / PAGE_SIZE);
 
   return (
     <div className="flex justify-between items-center mt-4" data-pending={pending ? "" : undefined}>
@@ -39,7 +40,7 @@ export default function Pagination(props: any) {
       </button>
 
       <span className="text-gray-600">
-        Page {optimisticPage} {/* Show the current optimistic page */}
+        Page {`${optimisticPage}/${totalPages}`} {/* Show the current optimistic page */}
       </span>
 
       <button

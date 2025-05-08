@@ -106,8 +106,6 @@ export async function searchMovies(
   const [{ count }] = await sql`
     SELECT COUNT(DISTINCT m.id)::int
     FROM movies m
-    LEFT JOIN movie_genres mg ON m.id = mg.movie_id
-    LEFT JOIN genres g ON mg.genre_id = g.id
     WHERE true
     ${nameQuery}  
     ${releaseYearFromQuery}
