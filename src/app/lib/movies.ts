@@ -3,6 +3,8 @@ import postgres from "postgres";
 import { NextResponse } from "next/server"; // To send a response
 import { z } from "zod";
 import { getSession } from "./auth";
+import { revalidatePath } from "next/cache";
+
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" });
 
 const PAGE_SIZE = 5;
@@ -29,6 +31,10 @@ const EditFormSchema = z.object({
   description: z.string(),
   genres: z.array(z.coerce.number()),
   movieId: z.string(),
+});
+
+const DeleteSchema = z.object({
+  id: z.string(),
 });
 
 const SearchSchema = z.object({
@@ -60,6 +66,25 @@ const SearchSchema = z.object({
 
 function delay(ms: any) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export async function deleteMovie(movieId: string) {
+  const session = await getSession();
+  if (!session?.user) {
+    return { error: "Unauthorized" };
+  }
+
+  try {
+    const { id } = DeleteSchema.parse({
+      id: movieId || "",
+    });
+
+    const result = await sql`DELETE FROM movies WHERE id = ${id}`;
+
+    revalidatePath("/main/search");
+  } catch (error) {
+    throw new Error("Could not delete the movie");
+  }
 }
 
 export async function searchMovies(

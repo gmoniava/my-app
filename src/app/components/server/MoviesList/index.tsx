@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import DeleteButton from "@/app/components/client/DeleteButton";
 
 const MovieList = async ({ searchResults }: any) => {
   return (
@@ -27,14 +28,11 @@ const MovieList = async ({ searchResults }: any) => {
                 </p>
                 <p className="text-gray-800 mt-2">{movie.description}</p>
               </div>
-              <div>
-                {" "}
-                <div>
-                  {" "}
-                  <Link className="mt-[5px] btn-secondary inline-block" href={`/main/edit-movie/${movie.id}`}>
-                    Edit movie
-                  </Link>
-                </div>
+              <div className="flex items-center gap-1">
+                <Link className="btn-secondary" href={`/main/edit-movie/${movie.id}`}>
+                  Edit movie
+                </Link>
+                <DeleteButton movieId={movie.id} />
               </div>
             </li>
           ))}
