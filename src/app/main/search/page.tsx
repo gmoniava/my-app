@@ -29,7 +29,7 @@ export default async function Page(props: {
         <MovieList searchResults={searchResults} />
       </Suspense>
 
-      <Pagination searchResults={searchResults} />
+      <Pagination total={searchResults.total} />
     </div>
   );
 }

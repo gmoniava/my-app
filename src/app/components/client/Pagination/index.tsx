@@ -25,9 +25,9 @@ export default function Pagination(props: any) {
     });
   };
 
-  const isNextDisabled = optimisticPage >= props.searchResults.total / PAGE_SIZE;
+  const isNextDisabled = optimisticPage >= props.total / PAGE_SIZE;
   const isPrevDisabled = optimisticPage === 1;
-  const totalPages = Math.ceil(props.searchResults.total / PAGE_SIZE);
+  const totalPages = Math.ceil(props.total / PAGE_SIZE);
 
   return (
     <div className="flex justify-between items-center mt-4" data-pending={pending ? "" : undefined}>

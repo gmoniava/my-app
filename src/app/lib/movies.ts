@@ -79,7 +79,7 @@ export async function deleteMovie(movieId: string) {
       id: movieId || "",
     });
 
-    const result = await sql`DELETE FROM movies WHERE id = ${id}`;
+    await sql`DELETE FROM movies WHERE id = ${id}`;
 
     revalidatePath("/main/search");
   } catch (error) {
@@ -91,6 +91,8 @@ export async function searchMovies(
   searchParams: URLSearchParams
 ): Promise<{ data: Movie[]; total: number } | { error: string }> {
   try {
+    // await delay(5000);
+
     const session = await getSession();
     if (!session?.user) {
       throw new Error("Unauthorized");
