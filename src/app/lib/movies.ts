@@ -90,34 +90,35 @@ export async function deleteMovie(movieId: string) {
 export async function searchMovies(
   searchParams: URLSearchParams
 ): Promise<{ data: Movie[]; total: number } | { error: string }> {
-  const session = await getSession();
-  if (!session?.user) {
-    return { error: "Unauthorized" };
-  }
+  try {
+    const session = await getSession();
+    if (!session?.user) {
+      throw new Error("Unauthorized");
+    }
 
-  await delay(1000);
+    await delay(1000);
 
-  const { name, page, perPage, genres, release_year_from, release_year_to, actor, description } = SearchSchema.parse({
-    name: searchParams.get("name") || "",
-    page: searchParams.get("page"),
-    perPage: searchParams.get("perPage"),
-    genres: searchParams.get("genres") || "",
-    release_year_from: searchParams.get("release_year_from"),
-    release_year_to: searchParams.get("release_year_to"),
-    actor: searchParams.get("actor"),
-    description: searchParams.get("description"),
-  });
+    const { name, page, perPage, genres, release_year_from, release_year_to, actor, description } = SearchSchema.parse({
+      name: searchParams.get("name") || "",
+      page: searchParams.get("page"),
+      perPage: searchParams.get("perPage"),
+      genres: searchParams.get("genres") || "",
+      release_year_from: searchParams.get("release_year_from"),
+      release_year_to: searchParams.get("release_year_to"),
+      actor: searchParams.get("actor"),
+      description: searchParams.get("description"),
+    });
 
-  const nameQuery = name ? sql`AND m.name ILIKE ${"%" + name + "%"}` : sql``;
-  const releaseYearFromQuery = release_year_from ? sql`AND m.release_year >= ${release_year_from}` : sql``;
-  const releaseYearToQuery = release_year_to ? sql`AND m.release_year <= ${release_year_to}` : sql``;
-  const actorQuery = actor ? sql`AND m.actors ILIKE ${"%" + actor + "%"}` : sql``;
-  const descriptionQuery = description ? sql`AND m.description ILIKE ${"%" + description + "%"}` : sql``;
+    const nameQuery = name ? sql`AND m.name ILIKE ${"%" + name + "%"}` : sql``;
+    const releaseYearFromQuery = release_year_from ? sql`AND m.release_year >= ${release_year_from}` : sql``;
+    const releaseYearToQuery = release_year_to ? sql`AND m.release_year <= ${release_year_to}` : sql``;
+    const actorQuery = actor ? sql`AND m.actors ILIKE ${"%" + actor + "%"}` : sql``;
+    const descriptionQuery = description ? sql`AND m.description ILIKE ${"%" + description + "%"}` : sql``;
 
-  // We need a movie who has at least one matching genre
-  const genreQuery =
-    genres.length > 0
-      ? sql`
+    // We need a movie who has at least one matching genre
+    const genreQuery =
+      genres.length > 0
+        ? sql`
         AND EXISTS (
           SELECT 1
             FROM movie_genres mg2
@@ -125,10 +126,10 @@ export async function searchMovies(
              AND mg2.genre_id IN (${sql(genres)})
         )
       `
-      : sql``;
+        : sql``;
 
-  // 1. Get total count
-  const [{ count }] = await sql`
+    // 1. Get total count
+    const [{ count }] = await sql`
     SELECT COUNT(DISTINCT m.id)::int
     FROM movies m
     WHERE true
@@ -140,9 +141,9 @@ export async function searchMovies(
     ${genreQuery}
   `;
 
-  // 2. Get paginated data
-  const offset = (page - 1) * perPage;
-  const data: Movie[] = await sql`
+    // 2. Get paginated data
+    const offset = (page - 1) * perPage;
+    const data: Movie[] = await sql`
     SELECT m.id, m.name, m.release_year, m.actors, m.description,
            ARRAY_AGG(DISTINCT g.name) AS genres
     FROM movies m
@@ -161,7 +162,10 @@ export async function searchMovies(
     OFFSET ${offset}
   `;
 
-  return { data, total: count };
+    return { data, total: count };
+  } catch (err: any) {
+    return { error: err.message };
+  }
 }
 
 export async function getMovieById(id: string): Promise<Movie | { error: string }> {

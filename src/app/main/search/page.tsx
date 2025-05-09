@@ -12,8 +12,12 @@ export default async function Page(props: {
 }) {
   const searchParams = await props.searchParams;
   const urlSearchParams = new URLSearchParams(searchParams as Record<string, string>);
+
+  // Search for movies using filters
   const searchResults = await searchMovies(urlSearchParams);
-  if ("error" in searchResults) return <div>Error</div>;
+
+  // Was there error when searching movies?
+  if ("error" in searchResults) return <div>{searchResults.error}</div>;
 
   return (
     <div className=" h-full overflow-auto group">
