@@ -131,7 +131,7 @@ export default function Search({ name }: any) {
           <div>
             <label className="block">Genres:</label>
             <select
-              // Had to add this because the select was not picking up the defaultValue unlike inputs.
+              // Had to add this because the select was not picking up the defaultValue unlike inputs during a re-render.
               key={[...new Set(formState.genres)].sort().join(",")}
               name="genres"
               multiple
