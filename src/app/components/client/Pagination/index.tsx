@@ -7,7 +7,7 @@ export const PAGE_SIZE = 5;
 export default function Pagination(props: any) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const { replace } = useRouter();
+  const { push } = useRouter();
 
   // Get the current page from the URL search params
   const page = parseInt(searchParams.get("page") || "1", 10);
@@ -24,7 +24,7 @@ export default function Pagination(props: any) {
       // even if the server response is delayed
       setOptimisticPage(newPage);
 
-      replace(`${pathname}?${params.toString()}`);
+      push(`${pathname}?${params.toString()}`);
     });
   };
 

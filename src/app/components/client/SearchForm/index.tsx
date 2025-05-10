@@ -6,7 +6,7 @@ import React from "react";
 export default function Search({ name }: any) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const { replace } = useRouter();
+  const { push } = useRouter();
 
   // Read initial values from URL
   const getInitialFormState = () => {
@@ -24,7 +24,7 @@ export default function Search({ name }: any) {
     };
   };
 
-  const handleSearch = (_prevState: any, formData: FormData): any => {
+  const handleSearch = (prevState: any, formData: FormData): any => {
     const params = new URLSearchParams(searchParams);
 
     const getValue = (key: string) => (formData.get(key) as string) || "";
@@ -55,7 +55,7 @@ export default function Search({ name }: any) {
       if (genre) params.append("genres", genre);
     });
 
-    replace(`${pathname}?${params.toString()}`);
+    push(`${pathname}?${params.toString()}`);
 
     return {
       name,
