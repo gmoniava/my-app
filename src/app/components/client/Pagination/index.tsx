@@ -9,18 +9,21 @@ export default function Pagination(props: any) {
   const pathname = usePathname();
   const { replace } = useRouter();
 
+  // Get the current page from the URL search params
   const page = parseInt(searchParams.get("page") || "1", 10);
 
   const [optimisticPage, setOptimisticPage] = useOptimistic(page);
   const [pending, startTransition] = useTransition();
 
-  // Handles page change
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams);
     params.set("page", newPage.toString());
 
     startTransition(() => {
+      // Make sure we see the new page immediately
+      // even if the server response is delayed
       setOptimisticPage(newPage);
+
       replace(`${pathname}?${params.toString()}`);
     });
   };
@@ -34,19 +37,17 @@ export default function Pagination(props: any) {
       <button
         onClick={() => handlePageChange(optimisticPage - 1)}
         disabled={isPrevDisabled}
-        className={`btn-secondary ${isPrevDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+        className={`btn-secondary ${isPrevDisabled ? "opacity-50" : ""}`}
       >
         Previous
       </button>
 
-      <span className="text-gray-600">
-        Page {`${optimisticPage}/${totalPages}`} {/* Show the current optimistic page */}
-      </span>
+      <span className="text-gray-600">Page {`${optimisticPage}/${totalPages}`}</span>
 
       <button
         onClick={() => handlePageChange(optimisticPage + 1)}
         disabled={isNextDisabled}
-        className={`btn-secondary ${isNextDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+        className={`btn-secondary ${isNextDisabled ? "opacity-50" : ""}`}
       >
         Next
       </button>
