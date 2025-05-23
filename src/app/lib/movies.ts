@@ -47,17 +47,7 @@ const SearchSchema = z.object({
     .number()
     .nullable()
     .transform((val) => val ?? PAGE_SIZE),
-  genres: z
-    .string()
-    .optional()
-    .transform((val) =>
-      val
-        ? val
-            .split(",")
-            .map((id) => parseInt(id.trim()))
-            .filter((id) => !isNaN(id))
-        : []
-    ),
+  genres: z.array(z.string()).transform((strArr) => strArr.map((s) => parseInt(s, 10))),
   release_year_from: z.coerce.number().nullable(),
   release_year_to: z.coerce.number().nullable(),
   actor: z.string().nullable(),
@@ -88,28 +78,29 @@ export async function deleteMovie(movieId: string) {
 }
 
 export async function searchMovies(
-  searchParams: URLSearchParams
+  searchParams: Record<string, any>
 ): Promise<{ data: Movie[]; total: number } | { error: string }> {
   try {
-    // await delay(5000);
-
     const session = await getSession();
     if (!session?.user) {
       throw new Error("Unauthorized");
     }
 
-    await delay(1000);
+    await delay(5000);
 
-    const { name, page, perPage, genres, release_year_from, release_year_to, actor, description } = SearchSchema.parse({
-      name: searchParams.get("name") || "",
-      page: searchParams.get("page"),
-      perPage: searchParams.get("perPage"),
-      genres: searchParams.get("genres") || "",
-      release_year_from: searchParams.get("release_year_from"),
-      release_year_to: searchParams.get("release_year_to"),
-      actor: searchParams.get("actor"),
-      description: searchParams.get("description"),
-    });
+    const raw = {
+      name: searchParams.name ?? "",
+      page: searchParams.page ?? null,
+      perPage: searchParams.perPage ?? null,
+      genres: searchParams.genres ?? [],
+      release_year_from: searchParams.release_year_from ?? null,
+      release_year_to: searchParams.release_year_to ?? null,
+      actor: searchParams.actor ?? null,
+      description: searchParams.description ?? null,
+    };
+
+    const { name, page, perPage, genres, release_year_from, release_year_to, actor, description } =
+      SearchSchema.parse(raw);
 
     const nameQuery = name ? sql`AND m.name ILIKE ${"%" + name + "%"}` : sql``;
     const releaseYearFromQuery = release_year_from ? sql`AND m.release_year >= ${release_year_from}` : sql``;
@@ -125,7 +116,7 @@ export async function searchMovies(
           SELECT 1
             FROM movie_genres mg2
            WHERE mg2.movie_id = m.id
-             AND mg2.genre_id IN (${sql(genres)})
+             AND mg2.genre_id = ANY (${genres})
         )
       `
         : sql``;

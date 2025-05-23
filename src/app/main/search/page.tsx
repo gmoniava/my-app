@@ -1,4 +1,3 @@
-import { addMovie, searchMovies } from "@/app/lib/movies";
 import SearchForm from "@/app/components/client/SearchForm";
 import MovieList from "@/app/components/server/MoviesList";
 import { Suspense } from "react";
@@ -11,25 +10,22 @@ export default async function Page(props: {
   }>;
 }) {
   const searchParams = await props.searchParams;
-  const urlSearchParams = new URLSearchParams(searchParams as Record<string, string>);
-
-  // Search for movies using filters
-  const searchResults = await searchMovies(urlSearchParams);
-
-  // Was there error when searching movies?
-  if ("error" in searchResults) return <div>{searchResults.error}</div>;
-
   return (
-    <div className=" h-full overflow-auto group">
+    <div className=" h-full overflow-auto  ">
       <SearchForm />
-      <div className="hidden justify-center items-center h-16  group-has-[[data-pending]]:flex">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-      <Suspense fallback={<div data-pending="" />}>
-        <MovieList searchResults={searchResults} />
+
+      <Suspense
+        key={JSON.stringify(searchParams)}
+        fallback={
+          <div className="justify-center items-center h-16 flex">
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+          </div>
+        }
+      >
+        <MovieList searchParams={searchParams} />
       </Suspense>
 
-      <Pagination total={searchResults.total} />
+      <Pagination />
     </div>
   );
 }

@@ -70,7 +70,7 @@ export default function Search({ name }: any) {
   const [formState, formAction, isPending] = React.useActionState(handleSearch, getInitialFormState());
 
   return (
-    <div data-pending={isPending ? "" : undefined}>
+    <div>
       <div className="h-full">
         <form action={formAction} className="w-1/2 mx-auto space-y-4 p-4 border rounded-lg">
           <div className="text-xl font-semibold">Search movies</div>

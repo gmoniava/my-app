@@ -1,8 +1,15 @@
 import React from "react";
 import Link from "next/link";
 import DeleteButton from "@/app/components/client/DeleteButton";
+import { addMovie, searchMovies } from "@/app/lib/movies";
 
-const MovieList = async ({ searchResults }: any) => {
+const MovieList = async ({ searchParams }: any) => {
+  // Search for movies using filters
+  const searchResults = await searchMovies(searchParams);
+
+  // Was there error when searching movies?
+  if ("error" in searchResults) return <div>{searchResults.error}</div>;
+
   return (
     <div className="mt-[5px] p-4 bg-gray-50 rounded-lg shadow-md">
       <h2 className="text-2xl font-semibold mb-4 text-gray-700">Movies</h2>

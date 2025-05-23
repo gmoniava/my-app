@@ -1,7 +1,8 @@
 "use client";
 
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { useOptimistic, useTransition } from "react";
+import React, { useOptimistic, useTransition } from "react";
+import { addMovie, searchMovies } from "@/app/lib/movies";
 
 export const PAGE_SIZE = 5;
 export default function Pagination(props: any) {
@@ -14,6 +15,21 @@ export default function Pagination(props: any) {
 
   const [optimisticPage, setOptimisticPage] = useOptimistic(page);
   const [pending, startTransition] = useTransition();
+  const [total, setTotal] = React.useState<number>(0);
+
+  // 🔍 useEffect to call searchMovies
+  React.useEffect(() => {
+    const paramsObject = Object.fromEntries(searchParams.entries());
+
+    const fetchData = async () => {
+      const result = await searchMovies(paramsObject);
+      if ("error" in result) return;
+
+      setTotal(result.total);
+    };
+
+    fetchData();
+  }, [searchParams]);
 
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams);
@@ -28,9 +44,9 @@ export default function Pagination(props: any) {
     });
   };
 
-  const isNextDisabled = optimisticPage >= props.total / PAGE_SIZE;
+  const isNextDisabled = optimisticPage >= total / PAGE_SIZE;
   const isPrevDisabled = optimisticPage === 1;
-  const totalPages = Math.ceil(props.total / PAGE_SIZE);
+  const totalPages = Math.ceil(total / PAGE_SIZE);
 
   return (
     <div className="flex justify-between items-center mt-4" data-pending={pending ? "" : undefined}>
