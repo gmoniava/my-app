@@ -58,6 +58,7 @@ export async function login(previousState: any, formData: FormData) {
   if (!passWordsMatch) return { error: "Wrong credentials" };
 
   // We authenticated the user, now let's create a session.
+  // The session will exist for 1 hour.
   const expires = new Date(Date.now() + 60 * 60 * 1000);
   const session = await sign({ user, expires });
 
