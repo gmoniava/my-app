@@ -8,8 +8,7 @@ export default function Search({ name }: any) {
   const pathname = usePathname();
   const { push } = useRouter();
 
-  // Read initial values from URL
-  const getInitialFormState = () => {
+  const getInitialFormStateFromURL = () => {
     const getParam = (key: string) => searchParams.get(key) || "";
 
     const genres = searchParams.getAll("genres");
@@ -25,6 +24,7 @@ export default function Search({ name }: any) {
   };
 
   const handleSearch = (prevState: any, formData: FormData): any => {
+    // Basically we need to convert the FormData into a URLSearchParams object
     const params = new URLSearchParams(searchParams);
 
     const getValue = (key: string) => (formData.get(key) as string) || "";
@@ -67,7 +67,7 @@ export default function Search({ name }: any) {
     };
   };
 
-  const [formState, formAction, isPending] = React.useActionState(handleSearch, getInitialFormState());
+  const [formState, formAction, isPending] = React.useActionState(handleSearch, getInitialFormStateFromURL());
 
   return (
     <div>
