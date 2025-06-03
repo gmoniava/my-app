@@ -47,7 +47,10 @@ const SearchSchema = z.object({
     .number()
     .nullable()
     .transform((val) => val ?? PAGE_SIZE),
-  genres: z.array(z.string()).transform((strArr) => strArr.map((s) => parseInt(s, 10))),
+  genres: z.union([z.string(), z.array(z.string())]).transform((value) => {
+    const arr = Array.isArray(value) ? value : [value];
+    return arr.map((s) => parseInt(s, 10));
+  }),
   release_year_from: z.coerce.number().nullable(),
   release_year_to: z.coerce.number().nullable(),
   actor: z.string().nullable(),
