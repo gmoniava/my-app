@@ -3,17 +3,12 @@
 import { addMovie, editMovie } from "@/app/lib/movies";
 import React, { useState, useTransition } from "react";
 
+const emptyForm = { name: "", release_year: "", actors: "", description: "", genres: [] };
+
 export default function Page(props: any) {
-  const [formData, setFormData] = useState(
-    props.movie
-      ? { ...props.movie, genres: props.movie.genres?.map((t: any) => t.toString()) }
-      : {
-          name: "",
-          release_year: "",
-          actors: "",
-          description: "",
-          genres: [],
-        }
+  const [form, setForm] = useState(
+    // In edit mode, pre-fill the form with movie data that is passed as props.
+    props.movie ? { ...props.movie, genres: props.movie.genres?.map((t: any) => t.toString()) } : emptyForm
   );
 
   const [isPending, startTransition] = useTransition();
@@ -21,25 +16,30 @@ export default function Page(props: any) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage(""); // Reset message before submitting
 
+    // Reset message before submitting
+    setMessage("");
+
+    // Converting to form data for submission because the backend expects form-data.
     const data = new FormData();
-    data.append("name", formData.name);
-    data.append("release_year", formData.release_year);
-    data.append("actors", formData.actors);
-    data.append("description", formData.description);
-    formData.genres.forEach((genre: any) => data.append("genres", genre));
+    data.append("name", form.name);
+    data.append("release_year", form.release_year);
+    data.append("actors", form.actors);
+    data.append("description", form.description);
+    form.genres.forEach((genre: any) => data.append("genres", genre));
 
     startTransition(async () => {
       try {
+        // Are we in edit mode or add mode?
         if (props.movie) {
-          data.append("id", formData.id);
+          // We are in edit mode, so we need to include the movie ID.
+          data.append("id", form.id);
           await editMovie(data);
           setMessage("Movie edited successfully!");
         } else {
           await addMovie(data);
           setMessage("Movie added successfully!");
-          setFormData({ name: "", release_year: "", actors: "", description: "", genres: [] }); // Reset form
+          setForm(emptyForm);
         }
       } catch (error) {
         console.error(error);
@@ -51,10 +51,11 @@ export default function Page(props: any) {
   const handleChange = (e: any) => {
     const { name, value, type, selectedOptions } = e.target;
     if (type === "select-multiple") {
+      // Select-multiple returns a collection of selected options as HTMLCollection.
       const values = Array.from(selectedOptions, (option: any) => option.value);
-      setFormData({ ...formData, [name]: values });
+      setForm({ ...form, [name]: values });
     } else {
-      setFormData({ ...formData, [name]: value });
+      setForm({ ...form, [name]: value });
     }
   };
 
@@ -68,7 +69,7 @@ export default function Page(props: any) {
           <input
             type="text"
             name="name"
-            value={formData.name}
+            value={form.name}
             onChange={handleChange}
             className="border p-2 w-full"
             required
@@ -80,7 +81,7 @@ export default function Page(props: any) {
           <input
             type="number"
             name="release_year"
-            value={formData.release_year}
+            value={form.release_year}
             onChange={handleChange}
             className="border p-2 w-full"
             required
@@ -92,7 +93,7 @@ export default function Page(props: any) {
           <input
             type="text"
             name="actors"
-            value={formData.actors}
+            value={form.actors}
             onChange={handleChange}
             className="border p-2 w-full"
             required
@@ -103,7 +104,7 @@ export default function Page(props: any) {
           <label className="block">Description:</label>
           <textarea
             name="description"
-            value={formData.description}
+            value={form.description}
             onChange={handleChange}
             className="border p-2 w-full"
             required
@@ -115,7 +116,7 @@ export default function Page(props: any) {
           <select
             name="genres"
             multiple
-            value={formData.genres}
+            value={form.genres}
             onChange={handleChange}
             className="border p-2 w-full"
             disabled={isPending}
