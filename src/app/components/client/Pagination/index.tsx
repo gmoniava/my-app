@@ -17,8 +17,10 @@ export default function Pagination(props: any) {
   const [pending, startTransition] = useTransition();
   const [total, setTotal] = React.useState<number>(0);
 
-  // 🔍 useEffect to call searchMovies
+  // We basically want to get total here
   React.useEffect(() => {
+    // Convert searchParams to an object
+    // so we can pass it to searchMovies
     const paramsObject = Object.fromEntries(searchParams.entries());
 
     const fetchData = async () => {
@@ -40,6 +42,8 @@ export default function Pagination(props: any) {
       // even if the server response is delayed
       setOptimisticPage(newPage);
 
+      // Now push the new page to the URL
+      // This will trigger a re-render and fetch the new data
       push(`${pathname}?${params.toString()}`);
     });
   };
