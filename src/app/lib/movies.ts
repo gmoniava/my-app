@@ -124,7 +124,7 @@ export async function searchMovies(
       `
         : sql``;
 
-    // 1. Get total count
+    // Get total count
     const [{ count }] = await sql`
     SELECT COUNT(DISTINCT m.id)::int
     FROM movies m
@@ -137,7 +137,7 @@ export async function searchMovies(
     ${genreQuery}
   `;
 
-    // 2. Get paginated data
+    // Get paginated data
     const offset = (page - 1) * perPage;
     const data: Movie[] = await sql`
     SELECT m.id, m.name, m.release_year, m.actors, m.description,
